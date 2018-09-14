@@ -2,7 +2,8 @@
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;  
     grid-template-rows: auto;
-    grid-template-areas: 
+    grid-template-areas:
+        "display display display display"
         "clear clear equals equals"
         "seven eight nine divide"
         "four five six multiply"

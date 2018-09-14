@@ -1,8 +1,8 @@
 import React from 'react';
 import './Buttons.css';
 
-const Buttons = () =>  (
-    <div className="buttons">
+const Buttons = (props) =>  (
+    <div className="buttons" onClick={props.handleButton}>
         <div id="clear">Clear</div>
         <div id="equals">=</div>
         <div id="seven">7</div>
