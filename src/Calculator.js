@@ -6,44 +6,63 @@ import './Calculator.css';
 
 class Calculator extends Component {
   state = {
-    result: 0,
-    display: '',
-    operation: '',
+    result: '',
+    expression: '',
+    currentNumber: '',
   }
   handleButton = (e) => {
     const button = e.target.textContent;
-    // console.log(button);
-    // this.handleOperation(button);
     this.setState((prevState) => {
-      if( button === '=') {
-        return { display: eval(prevState.display) };
+      if(button === 'Clear'){
+        return { 
+          result: '', 
+          expression: '',
+          currentNumber: '',
+        };
       }
-      console.log(prevState.display)
-      return {display: prevState.display + button};
+      if(button === '=' && prevState.expression.substr(-1).match(/[\/\+\-\*]/)) {
+        return;
+      }
+      if(button === '=') {
+        return { 
+          result: eval(prevState.expression), 
+          expression: '',
+          currentNumber: '',
+        };
+      }
+      // Force numbers to not start with zero
+      if((button === '0' && prevState.expression.length === 0) || (button === '0' && prevState.expression.match(/[\/\+\-\*]/))){
+        return;
+      }
+      // Forbid two consecutive operators
+      if(button.match(/[\/\+\-\*]/) && prevState.expression.substr(-1).match(/[\+\-\*\/]/)) {
+          return;
+      }
+      if(button.match(/[\/\+\-\*]/)) {
+        return { 
+          currentNumber: prevState.expression,
+          expression: prevState.expression + button,
+        };
+      } else {
+        return {
+          expression: prevState.expression + button,
+          currentNumber: prevState.expression + button,
+        };
+      }
+      // if(button === '.' && prevState.expression.substr(prevState.expression - 1) === '.'){
+      //   return;
+      // }
+      // if(this.state.lastNumber.indexOf('.') !== 1 )
+      // return {
+      //   expression: prevState.expression + button,
+      //   currentNumber: prevState.expression + button,
+      // };
     });
   }
-  // handleOperation(operation) {
-  //   switch(operation) {
-  //     case '+':
-  //       this.setState({ operation: 'add' });
-  //       break;
-  //     case '-':
-  //       this.setState({ operation: 'subtract' });
-  //       break;
-  //     case '*':
-  //       this.setState({ operation: 'multiply' });
-  //       break;
-  //     case '/':
-  //       this.setState({ operation: 'divide' });
-  //       break;
-  //     default:
-  //       return;
-  //   }
-  // }
   render() {
     return (
       <div className="Calculator">
-        <Display display={this.state.display}/>
+        <Display result={this.state.result} expression={this.state.expression}/>
         <Buttons handleButton={this.handleButton}/>
       </div>
     );
