@@ -6,18 +6,20 @@ import './Calculator.css';
 
 class Calculator extends Component {
   state = {
-    result: '',
+    result: 0,
     expression: '',
     currentNumber: '',
+    dotAllowed: true,
   }
   handleButton = (e) => {
     const button = e.target.textContent;
     this.setState((prevState) => {
       if(button === 'Clear'){
         return { 
-          result: '', 
+          result: 0, 
           expression: '',
-          currentNumber: '',
+          currentNumber: true,
+          dotAllowed: true,
         };
       }
       if(button === '=' && prevState.expression.substr(-1).match(/[\/\+\-\*]/)) {
@@ -25,38 +27,60 @@ class Calculator extends Component {
       }
       if(button === '=') {
         return { 
-          result: eval(prevState.expression), 
-          expression: '',
-          currentNumber: '',
+          result: eval(prevState.expression),
+          currentNumber: '=',
         };
       }
-      // Force numbers to not start with zero
+      // When inputting numbers, the calculator does not allow a number to begin with multiple zeros.
       if((button === '0' && prevState.expression.length === 0) || (button === '0' && prevState.expression.match(/[\/\+\-\*]/))){
         return;
       }
-      // Forbid two consecutive operators
+      // Pressing an operator immediately following = starts a new calculation 
+      // that operates on the result of the previous evaluation.
+      if(button.match(/[\/\+\-\*]/) && prevState.currentNumber === '=') {
+        return {
+          currentNumber: true,
+          expression: prevState.result + button,
+          result: prevState.result + button,
+          dotAllowed: true,
+        };
+      }
+      // If 2 or more operators are entered consecutively, the operation performed is the last operator entered.
       if(button.match(/[\/\+\-\*]/) && prevState.expression.substr(-1).match(/[\+\-\*\/]/)) {
+        if(this.state.expression.length === 1 && button.match(/[\/\*]/)) {
           return;
+        }
+          return { expression: prevState.expression.substr(0, prevState.expression.length - 1) + button };
+      }
+      if(button.match(/[\/\*]/) && this.state.expression === '') {
+        return;
+      }
+      // When the decimal element is clicked, a . appendσ to the currently displayed value; two . in one number αρε not accepted.
+      if(this.state.dotAllowed === false && button === '.') {
+        return;
+      }
+      if(button === '.') {
+        return {
+          currentNumber: true,
+          expression: prevState.result + button,
+          result: prevState.result + button,
+          dotAllowed: false,
+        }
       }
       if(button.match(/[\/\+\-\*]/)) {
         return { 
-          currentNumber: prevState.expression,
+          currentNumber: true,
           expression: prevState.expression + button,
+          result: prevState.expression + button,
+          dotAllowed: true,
         };
       } else {
         return {
+          currentNumber: true,
           expression: prevState.expression + button,
-          currentNumber: prevState.expression + button,
+          result: prevState.expression + button,
         };
       }
-      // if(button === '.' && prevState.expression.substr(prevState.expression - 1) === '.'){
-      //   return;
-      // }
-      // if(this.state.lastNumber.indexOf('.') !== 1 )
-      // return {
-      //   expression: prevState.expression + button,
-      //   currentNumber: prevState.expression + button,
-      // };
     });
   }
   render() {
